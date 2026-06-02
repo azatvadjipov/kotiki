@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Встреча котиков 🐾</title>
+    <style>
+        :root {
+            --bg-color: #ffeef2;
+            --path-color: #ffd1dc;
+            --text-color: #ff6584;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 0px #fff;
+        }
+
+        /* Игровое поле / тропинка */
+        .scene {
+            width: 100%;
+            height: 120px;
+            background-color: var(--path-color);
+            border: 4px solid #fff;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 8px 0px rgba(255, 101, 132, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Центральный маркер встречи */
+        .meeting-point {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 10px;
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        /* Базовый класс для котиков */
+        .cat {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            bottom: 35px;
+            font-size: 2.5rem;
+            line-height: 1;
+            user-select: none;
+            transition: left 1s linear, right 1s linear;
+            image-rendering: pixelated;
+        }
+
+        #grey-cat {
+            left: 0;
+        }
+
+        #white-cat {
+            right: 0;
+            transform: scaleX(-1); /* Поворачиваем белого котика лицом налево */
+        }
+
+        /* Стили для шлейфа сердечек */
+        .heart-trail {
+            position: absolute;
+            font-size: 0.8rem;
+            color: #ff4081;
+            animation: floatUp 1.2s ease-out forwards;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.6);
+            }
+        }
+
+        /* Финальное сообщение */
+        #celebration {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff4081;
+            display: none;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: spin 3s linear infinite;
+        }
+
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 400px) {
+            h1 { font-size: 1.2rem; }
+            .scene { height: 100px; }
+            .cat { font-size: 2rem; bottom: 25px; width: 32px; height: 32px; }
+            #celebration { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="status-title">Котики идут навстречу друг другу... 🐾</h1>
+        
+        <div class="scene" id="scene">
+            <div class="meeting-point">🌸</div>
+            <div id="grey-cat" class="cat">🐈‍⬛</div>
+            <div id="white-cat" class="cat">🐈</div>
+        </div>
+
+        <div id="celebration">
+            💖 Ураааа, котики встретились! 💖
+            <div style="font-size: 1.2rem; margin-top: 10px; color: var(--text-color);"> Они вместе навсегда! ✨</div>
+        </div>
+    </div>
+
+    <script>
+        // Целевое время: 3 июня 2026 года, 09:50:00 UTC+3
+        // В JavaScript Date.UTC использует часовой пояс UTC. 
+        // 09:50 по UTC+3 — это 06:50 по UTC.
+        const targetDate = new Date(Date.UTC(2026, 5, 3, 6, 50, 0)); 
+        
+        // Время старта (зашито как момент создания или можно взять текущее при первом запуске)
+        // Для демонстрации плавного сближения берем за основу время первой загрузки страницы,
+        // но ограничиваем, чтобы они не перепрыгивали резко.
+        const loadTime = new Date();
+        const totalDuration = targetDate - loadTime > 0 ? targetDate - loadTime : 60000;
+
+        const greyCat = document.getElementById('grey-cat');
+        const whiteCat = document.getElementById('white-cat');
+        const celebration = document.getElementById('celebration');
+        const statusTitle = document.getElementById('status-title');
+        const scene = document.getElementById('scene');
+
+        function leaveHeartTrail(catElement, isReverse = false) {
+            const rect = catElement.getBoundingClientRect();
+            const sceneRect = scene.getBoundingClientRect();
+            
+            const heart = document.createElement('div');
+            heart.className = 'heart-trail';
+            heart.innerText = '💗';
+            
+            // Расчет позиции относительно контейнера сцены
+            const x = rect.left - sceneRect.left + (rect.width / 2);
+            const y = rect.top - sceneRect.top + 10;
+            
+            heart.style.left = `${x}px`;
+            heart.style.top = `${y}px`;
+            
+            scene.appendChild(heart);
+            
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => heart.remove(), 1200);
+        }
+
+        function createConfetti() {
+            const icons = ['❤️', '💖', '✨', '🐾', '🌸'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.innerText = icons[Math.floor(Math.random() * icons.length)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = Math.random() * 100 + '%';
+                    confetti.style.fontSize = (Math.random() * 1 + 1) + 'rem';
+                    
+                    scene.appendChild(confetti);
+                    
+                    // Анимация разлета
+                    let speedY = Math.random() * -3 - 1;
+                    let speedX = (Math.random() - 0.5) * 4;
+                    let posY = scene.offsetHeight / 2;
+                    let posX = parseFloat(confetti.style.left) * scene.offsetWidth / 100;
+                    
+                    const interval = setInterval(() => {
+                        posY += speedY;
+                        posX += speedX;
+                        speedY += 0.1; // Гравитация
+                        confetti.style.top = posY + 'px';
+                        confetti.style.left = posX + 'px';
+                        
+                        if (posY > scene.offsetHeight + 20) {
+                            clearInterval(interval);
+                            confetti.remove();
+                        }
+                    }, 30);
+                }, i * 100);
+            }
+        }
+
+        function updatePosition() {
+            const now = new Date();
+            const timeRemaining = targetDate - now;
+
+            if (timeRemaining <= 0) {
+                // Время пришло — котики встретились в центре!
+                greyCat.style.left = 'calc(50% - 30px)';
+                whiteCat.style.right = 'calc(50% - 30px)';
+                
+                // Меняем ориентацию, чтобы они смотрели друг на друга вплотную или радовались
+                greyCat.style.transform = 'scaleX(1)';
+                whiteCat.style.transform = 'scaleX(-1)';
+                
+                statusTitle.style.display = 'none';
+                celebration.style.display = 'block';
+                
+                // Запускаем праздничный салют из сердечек один раз
+                clearInterval(positionInterval);
+                clearInterval(trailInterval);
+                createConfetti();
+                return;
+            }
+
+            // Вычисляем пройденный путь в процентах (максимум 50%, так как они идут навстречу)
+            const timePassed = totalDuration - timeRemaining;
+            let progress = (timePassed / totalDuration) * 50;
+            if (progress < 0) progress = 0;
+            if (progress > 43) progress = 43; // Ограничение, чтобы не слились раньше времени (с учетом ширины спрайта)
+
+            // Двигаем котиков
+            greyCat.style.left = `${progress}%`;
+            whiteCat.style.right = `${progress}%`;
+        }
+
+        // Обновление позиций котиков каждую секунду
+        updatePosition();
+        const positionInterval = setInterval(updatePosition, 1000);
+
+        // Оставляем шлейф из сердечек каждые 600мс
+        const trailInterval = setInterval(() => {
+            const now = new Date();
+            if (targetDate - now > 0) {
+                leaveHeartTrail(greyCat);
+                leaveHeartTrail(whiteCat);
+            }
+        }, 600);
+    </script>
+</body>
+</html>
