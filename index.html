@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Встреча котиков 🐾</title>
+    <title>Встреча Азата и Фаризы 🐾</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #ffeef2;
-            --path-color: #ffd1dc;
-            --text-color: #ff6584;
+            --sky-color: #5c94fc;
+            --grass-color: #52b73a;
+            --road-color: #9c6b30;
+            --road-border: #6b471c;
+            --text-color: #ffffff;
+            --ui-bg: rgba(0, 0, 0, 0.6);
         }
 
         * {
@@ -18,8 +23,8 @@
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: var(--bg-color);
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            background-color: var(--sky-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,73 +32,125 @@
             min-height: 100vh;
             overflow: hidden;
             padding: 20px;
+            /* Убираем сглаживание для всего документа */
+            image-rendering: pixelated; 
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             text-align: center;
             position: relative;
         }
 
+        /* UI панель сверху */
+        .status-box {
+            background-color: var(--ui-bg);
+            border: 4px solid #fff;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+
         h1 {
             color: var(--text-color);
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 0px #fff;
+            font-size: 1rem;
+            line-height: 1.5;
+            text-shadow: 2px 2px 0px #000;
         }
 
-        /* Игровое поле / тропинка */
+        /* Игровая сцена */
         .scene {
             width: 100%;
-            height: 120px;
-            background-color: var(--path-color);
+            height: 200px;
+            background-color: var(--grass-color);
             border: 4px solid #fff;
-            border-radius: 20px;
             position: relative;
-            box-shadow: 0 8px 0px rgba(255, 101, 132, 0.2);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
         }
 
-        /* Центральный маркер встречи */
+        /* Пиксельная дорога */
+        .road {
+            width: 100%;
+            height: 80px;
+            background-color: var(--road-color);
+            border-top: 4px dashed var(--road-border);
+            border-bottom: 4px dashed var(--road-border);
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Центр (точка встречи) */
         .meeting-point {
             position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 10px;
-            font-size: 1.5rem;
-            opacity: 0.7;
+            bottom: 30px;
+            width: 4px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-left: 2px dotted #fff;
         }
 
-        /* Базовый класс для котиков */
-        .cat {
-            width: 40px;
-            height: 40px;
+        /* Обёртка для котика и имени */
+        .cat-wrapper {
             position: absolute;
-            bottom: 35px;
-            font-size: 2.5rem;
-            line-height: 1;
-            user-select: none;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             transition: left 1s linear, right 1s linear;
-            image-rendering: pixelated;
+            z-index: 10;
         }
 
-        #grey-cat {
+        .name-tag {
+            font-size: 0.6rem;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        /* SVG Котики */
+        .cat-svg {
+            width: 64px;
+            height: 64px;
+            display: block;
+        }
+
+        #wrapper-azat {
             left: 0;
         }
 
-        #white-cat {
+        #wrapper-fariza {
             right: 0;
-            transform: scaleX(-1); /* Поворачиваем белого котика лицом налево */
         }
 
-        /* Стили для шлейфа сердечек */
+        /* Разворачиваем только SVG Фаризы (чтобы имя не зеркалилось) */
+        #wrapper-fariza .cat-svg {
+            transform: scaleX(-1);
+        }
+
+        /* Цвета пикселей */
+        .grey-cat { fill: #8c8c8c; }
+        .white-cat { fill: #ffffff; }
+        .eye { fill: #000000; }
+        .nose { fill: #ff8fab; }
+        .outline { fill: #333333; } /* Контур для белого котика, чтобы выделялся */
+
+        /* Пиксельные сердечки шлейфа */
         .heart-trail {
             position: absolute;
-            font-size: 0.8rem;
-            color: #ff4081;
-            animation: floatUp 1.2s ease-out forwards;
+            width: 16px;
+            height: 16px;
+            animation: floatUp 1.5s linear forwards;
             pointer-events: none;
             z-index: 5;
         }
@@ -105,130 +162,139 @@
             }
             100% {
                 opacity: 0;
-                transform: translateY(-30px) scale(0.6);
+                transform: translateY(-40px) scale(0.5);
             }
         }
 
-        /* Финальное сообщение */
+        /* Экран праздника */
         #celebration {
-            margin-top: 30px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ff4081;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ffb8b8;
             display: none;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-shadow: 2px 2px 0px #fff;
+            text-shadow: 2px 2px 0px #000;
+            background-color: var(--ui-bg);
+            border: 4px solid #fff;
+            padding: 20px;
+            animation: blink 1s step-end infinite;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
+        @keyframes blink {
+            50% { border-color: #ff4081; }
         }
 
-        .confetti {
-            position: absolute;
-            font-size: 1.5rem;
-            animation: spin 3s linear infinite;
-        }
-
-        /* Адаптивность для маленьких экранов */
-        @media (max-width: 400px) {
-            h1 { font-size: 1.2rem; }
-            .scene { height: 100px; }
-            .cat { font-size: 2rem; bottom: 25px; width: 32px; height: 32px; }
-            #celebration { font-size: 1.4rem; }
+        /* Адаптивность */
+        @media (max-width: 500px) {
+            h1 { font-size: 0.8rem; }
+            .cat-svg { width: 48px; height: 48px; }
+            .road { height: 60px; bottom: 15px; }
+            .cat-wrapper { bottom: 20px; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1 id="status-title">Котики идут навстречу друг другу... 🐾</h1>
+        <div class="status-box" id="status-box">
+            <h1 id="status-title">ПУТЬ К ВСТРЕЧЕ...</h1>
+        </div>
         
         <div class="scene" id="scene">
-            <div class="meeting-point">🌸</div>
-            <div id="grey-cat" class="cat">🐈‍⬛</div>
-            <div id="white-cat" class="cat">🐈</div>
+            <div class="road"></div>
+            <div class="meeting-point"></div>
+
+            <div id="wrapper-azat" class="cat-wrapper">
+                <div class="name-tag">Азат</div>
+                <svg class="cat-svg" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1" y="10" width="3" height="2" class="grey-cat"/>
+                    <rect x="0" y="8" width="2" height="2" class="grey-cat"/>
+                    <rect x="3" y="8" width="7" height="6" class="grey-cat"/>
+                    <rect x="4" y="14" width="2" height="2" class="grey-cat"/>
+                    <rect x="8" y="14" width="2" height="2" class="grey-cat"/>
+                    <rect x="9" y="5" width="6" height="5" class="grey-cat"/>
+                    <rect x="9" y="3" width="2" height="2" class="grey-cat"/>
+                    <rect x="13" y="3" width="2" height="2" class="grey-cat"/>
+                    <rect x="13" y="6" width="2" height="2" class="eye"/>
+                    <rect x="15" y="8" width="1" height="1" class="nose"/>
+                </svg>
+            </div>
+
+            <div id="wrapper-fariza" class="cat-wrapper">
+                <div class="name-tag">Фариза</div>
+                <svg class="cat-svg" viewBox="-1 -1 18 18" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="9" width="4" height="4" class="outline"/>
+                    <rect x="-1" y="7" width="4" height="4" class="outline"/>
+                    <rect x="2" y="7" width="9" height="8" class="outline"/>
+                    <rect x="3" y="13" width="4" height="4" class="outline"/>
+                    <rect x="7" y="13" width="4" height="4" class="outline"/>
+                    <rect x="8" y="4" width="8" height="7" class="outline"/>
+                    <rect x="8" y="2" width="4" height="4" class="outline"/>
+                    <rect x="12" y="2" width="4" height="4" class="outline"/>
+
+                    <rect x="1" y="10" width="3" height="2" class="white-cat"/>
+                    <rect x="0" y="8" width="2" height="2" class="white-cat"/>
+                    <rect x="3" y="8" width="7" height="6" class="white-cat"/>
+                    <rect x="4" y="14" width="2" height="2" class="white-cat"/>
+                    <rect x="8" y="14" width="2" height="2" class="white-cat"/>
+                    <rect x="9" y="5" width="6" height="5" class="white-cat"/>
+                    <rect x="9" y="3" width="2" height="2" class="white-cat"/>
+                    <rect x="13" y="3" width="2" height="2" class="white-cat"/>
+                    <rect x="13" y="6" width="2" height="2" class="eye"/>
+                    <rect x="15" y="8" width="1" height="1" class="nose"/>
+                </svg>
+            </div>
         </div>
 
         <div id="celebration">
-            💖 Ураааа, котики встретились! 💖
-            <div style="font-size: 1.2rem; margin-top: 10px; color: var(--text-color);"> Они вместе навсегда! ✨</div>
+            УРАААА! <br><br>
+            АЗАТ И ФАРИЗА ВСТРЕТИЛИСЬ! <br>💖💖💖
         </div>
     </div>
 
+    <template id="heart-template">
+        <svg viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg" class="heart-trail">
+            <rect x="2" y="1" width="2" height="2" fill="#ff4081"/>
+            <rect x="7" y="1" width="2" height="2" fill="#ff4081"/>
+            <rect x="1" y="3" width="9" height="4" fill="#ff4081"/>
+            <rect x="3" y="7" width="5" height="2" fill="#ff4081"/>
+            <rect x="5" y="9" width="1" height="2" fill="#ff4081"/>
+        </svg>
+    </template>
+
     <script>
-        // Целевое время: 3 июня 2026 года, 09:50:00 UTC+3
-        // В JavaScript Date.UTC использует часовой пояс UTC. 
-        // 09:50 по UTC+3 — это 06:50 по UTC.
-        const targetDate = new Date(Date.UTC(2026, 5, 3, 6, 50, 0)); 
+        // Точное время встречи: 3 июня 2026, 09:50 (Часовой пояс +3)
+        // Строгий формат ISO гарантирует правильный парсинг таймзоны в браузере
+        const targetDate = new Date("2026-06-03T09:50:00+03:00"); 
         
-        // Время старта (зашито как момент создания или можно взять текущее при первом запуске)
-        // Для демонстрации плавного сближения берем за основу время первой загрузки страницы,
-        // но ограничиваем, чтобы они не перепрыгивали резко.
+        // Для демонстрации плавного старта берем момент загрузки страницы
         const loadTime = new Date();
         const totalDuration = targetDate - loadTime > 0 ? targetDate - loadTime : 60000;
 
-        const greyCat = document.getElementById('grey-cat');
-        const whiteCat = document.getElementById('white-cat');
+        const azat = document.getElementById('wrapper-azat');
+        const fariza = document.getElementById('wrapper-fariza');
         const celebration = document.getElementById('celebration');
-        const statusTitle = document.getElementById('status-title');
+        const statusBox = document.getElementById('status-box');
         const scene = document.getElementById('scene');
+        const heartTemplate = document.getElementById('heart-template');
 
-        function leaveHeartTrail(catElement, isReverse = false) {
+        // Функция спавна пиксельных сердечек сзади котиков
+        function leaveHeartTrail(catElement, isRightSide) {
             const rect = catElement.getBoundingClientRect();
             const sceneRect = scene.getBoundingClientRect();
             
-            const heart = document.createElement('div');
-            heart.className = 'heart-trail';
-            heart.innerText = '💗';
+            // Клонируем SVG из шаблона
+            const heart = heartTemplate.content.cloneNode(true).querySelector('svg');
             
-            // Расчет позиции относительно контейнера сцены
-            const x = rect.left - sceneRect.left + (rect.width / 2);
-            const y = rect.top - sceneRect.top + 10;
+            // Если кот идет слева направо (Азат), хвост слева. Если справа налево (Фариза) - хвост справа.
+            const offsetX = isRightSide ? rect.width - 10 : 0;
+            const x = rect.left - sceneRect.left + offsetX;
+            const y = rect.top - sceneRect.top + (rect.height / 2) + 10;
             
             heart.style.left = `${x}px`;
             heart.style.top = `${y}px`;
             
             scene.appendChild(heart);
-            
-            // Удаляем элемент после завершения анимации
-            setTimeout(() => heart.remove(), 1200);
-        }
-
-        function createConfetti() {
-            const icons = ['❤️', '💖', '✨', '🐾', '🌸'];
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.innerText = icons[Math.floor(Math.random() * icons.length)];
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.top = Math.random() * 100 + '%';
-                    confetti.style.fontSize = (Math.random() * 1 + 1) + 'rem';
-                    
-                    scene.appendChild(confetti);
-                    
-                    // Анимация разлета
-                    let speedY = Math.random() * -3 - 1;
-                    let speedX = (Math.random() - 0.5) * 4;
-                    let posY = scene.offsetHeight / 2;
-                    let posX = parseFloat(confetti.style.left) * scene.offsetWidth / 100;
-                    
-                    const interval = setInterval(() => {
-                        posY += speedY;
-                        posX += speedX;
-                        speedY += 0.1; // Гравитация
-                        confetti.style.top = posY + 'px';
-                        confetti.style.left = posX + 'px';
-                        
-                        if (posY > scene.offsetHeight + 20) {
-                            clearInterval(interval);
-                            confetti.remove();
-                        }
-                    }, 30);
-                }, i * 100);
-            }
+            setTimeout(() => heart.remove(), 1500);
         }
 
         function updatePosition() {
@@ -236,47 +302,41 @@
             const timeRemaining = targetDate - now;
 
             if (timeRemaining <= 0) {
-                // Время пришло — котики встретились в центре!
-                greyCat.style.left = 'calc(50% - 30px)';
-                whiteCat.style.right = 'calc(50% - 30px)';
+                // Время истекло — котики встретились!
+                // Центруем с учетом их собственной ширины (около 64px)
+                azat.style.left = 'calc(50% - 40px)';
+                fariza.style.right = 'calc(50% - 40px)';
                 
-                // Меняем ориентацию, чтобы они смотрели друг на друга вплотную или радовались
-                greyCat.style.transform = 'scaleX(1)';
-                whiteCat.style.transform = 'scaleX(-1)';
-                
-                statusTitle.style.display = 'none';
+                statusBox.style.display = 'none';
                 celebration.style.display = 'block';
                 
-                // Запускаем праздничный салют из сердечек один раз
                 clearInterval(positionInterval);
                 clearInterval(trailInterval);
-                createConfetti();
                 return;
             }
 
-            // Вычисляем пройденный путь в процентах (максимум 50%, так как они идут навстречу)
+            // Высчитываем прогресс в % (макс 40%, чтобы котики остановились нос к носу)
             const timePassed = totalDuration - timeRemaining;
             let progress = (timePassed / totalDuration) * 50;
             if (progress < 0) progress = 0;
-            if (progress > 43) progress = 43; // Ограничение, чтобы не слились раньше времени (с учетом ширины спрайта)
+            if (progress > 40) progress = 40; 
 
-            // Двигаем котиков
-            greyCat.style.left = `${progress}%`;
-            whiteCat.style.right = `${progress}%`;
+            azat.style.left = `${progress}%`;
+            fariza.style.right = `${progress}%`;
         }
 
-        // Обновление позиций котиков каждую секунду
+        // Запуск логики
         updatePosition();
         const positionInterval = setInterval(updatePosition, 1000);
 
-        // Оставляем шлейф из сердечек каждые 600мс
+        // Хвосты из сердечек (каждые 800мс)
         const trailInterval = setInterval(() => {
             const now = new Date();
             if (targetDate - now > 0) {
-                leaveHeartTrail(greyCat);
-                leaveHeartTrail(whiteCat);
+                leaveHeartTrail(azat, false); // Азат (идет слева направо)
+                leaveHeartTrail(fariza, true); // Фариза (идет справа налево)
             }
-        }, 600);
+        }, 800);
     </script>
 </body>
 </html>
