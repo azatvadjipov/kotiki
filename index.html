@@ -85,7 +85,7 @@
             box-shadow: 0 0 0 4px #f39c12;
         }
 
-        /* Пиксельные Облака */
+        /* Активные Пиксельные Облака */
         .pixel-cloud {
             position: absolute;
             background: #fff;
@@ -93,8 +93,27 @@
             border-radius: 2px;
             opacity: 0.85;
         }
-        .cloud-1 { width: 60px; top: 20px; left: 120px; }
-        .cloud-2 { width: 90px; top: 45px; right: 40px; }
+        .cloud-1 { 
+            width: 60px; 
+            top: 25px; 
+            left: 10%;
+            animation: cruiseSlow 12s ease-in-out infinite alternate;
+        }
+        .cloud-2 { 
+            width: 90px; 
+            top: 50px; 
+            right: 15%; 
+            animation: cruiseFast 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes cruiseSlow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(60px); }
+        }
+        @keyframes cruiseFast {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-80px); }
+        }
 
         /* Силуэт Стамбула на фоне Азата */
         .istanbul-bg {
@@ -124,12 +143,21 @@
         /* Контейнеры котиков */
         .cat-container {
             position: absolute;
-            bottom: 12px; /* Четко на дороге */
+            bottom: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 10;
-            transition: bottom 0.1s ease;
+        }
+
+        /* Азат ВСЕГДА жестко слева */
+        #azat-wrapper {
+            left: 10%;
+        }
+
+        /* Фариза идет справа налево (управляется через JS) */
+        #fariza-wrapper {
+            left: 80%; 
         }
 
         .name-tag {
@@ -148,7 +176,7 @@
             height: 55px;
         }
 
-        /* Разворот Фаризы влево */
+        /* Разворот Фаризы влево навстречу Азату */
         #fariza-wrapper .cat-sprite {
             transform: scaleX(-1);
         }
@@ -170,20 +198,21 @@
             50% { transform: translateY(-3px); }
         }
 
-        /* СТИКЕРНЫЕ СЕРДЕЧКИ (При тапе) */
+        /* СТИКЕРНЫЕ СЕРДЕЧКИ (Исправленные, плавные) */
         .tap-heart {
             position: absolute;
             width: 16px;
             height: 16px;
-            animation: popHeart 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: popHeart 1.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             pointer-events: none;
             z-index: 99;
         }
 
         @keyframes popHeart {
             0% { transform: scale(0) translateY(0); opacity: 0; }
-            30% { transform: scale(1.3) translateY(-10px); opacity: 1; }
-            100% { transform: scale(0.9) translateY(-35px); opacity: 0; }
+            15% { transform: scale(1.3) translateY(-10px); opacity: 1; }
+            80% { transform: scale(1.0) translateY(-40px); opacity: 1; }
+            100% { transform: scale(0.7) translateY(-55px); opacity: 0; }
         }
 
         /* Салют при встрече */
@@ -206,6 +235,7 @@
             .screen { height: 240px; }
             .cat-sprite { width: 48px; height: 48px; }
             .big-suitcase { width: 20px; height: 20px; right: -14px; }
+            #azat-wrapper { left: 8%; }
         }
     </style>
 </head>
@@ -213,7 +243,7 @@
 
     <div class="game-container">
         <div class="timer-panel" id="timer-screen">
-            <h1>АЗАТ ОЖИДАЕТ В ТУРЦИИ, ФАРИЗА ЛЕТИТ К НЕМУ... 🇹🇷✈️</h1>
+            <h1>АЗАТ ЖДЕТ В СТАМБУЛЕ, ФАРИЗА ЛЕТИТ К НЕМУ... 🇹🇷✈️</h1>
             <div class="countdown" id="timer-text">00д : 00ч : 00м : 00с</div>
         </div>
 
@@ -297,8 +327,8 @@
     <script>
         // Конечная точка времени: 3 июня 2026, 09:50 UTC+3
         const targetTime = new Date("2026-06-03T09:50:00+03:00");
-        // Начало отсчета для трека движения (зафиксировано на 1 июня)
-        const startTime = new Date("2026-06-01T00:00:00+03:00");
+        // НАЧАЛЬНАЯ ТОЧКА ОТСЧЕТА: 2 июня 2026, 15:00 UTC+3
+        const startTime = new Date("2026-06-02T15:00:00+03:00");
         const totalDuration = targetTime - startTime;
 
         const azat = document.getElementById('azat-wrapper');
@@ -323,7 +353,7 @@
             heart.style.top = `${y}px`;
             
             clickZone.appendChild(heart);
-            setTimeout(() => heart.remove(), 500);
+            setTimeout(() => heart.remove(), 1000); // Исчезают в 2 раза медленнее
         }
 
         function updateFrame() {
@@ -331,9 +361,8 @@
             const diff = targetTime - now;
 
             if (diff <= 0) {
-                // Момент встречи! Ставим их строго по центру рядышком
-                azat.style.left = 'calc(50% - 52px)';
-                fariza.style.right = 'calc(50% - 52px)';
+                // Точка Б (Встреча): Ставим Фаризу вплотную к Азату (на расстоянии ширины котика + зазор)
+                fariza.style.left = 'calc(10% + 55px + 4px)';
                 
                 azat.classList.remove('bounce-animation');
                 fariza.classList.remove('bounce-animation');
@@ -354,18 +383,23 @@
             const format = (n) => String(n).padStart(2, '0');
             timerText.innerText = `${format(d)}д : ${format(h)}ч : ${format(m)}м : ${format(s)}с`;
 
-            // Математика сближения: котики идут от краёв (4%) к центру (максимум по 43% с каждой стороны)
+            // Математика сближения по вектору:
+            // Точка А (старт): 80% (правый край)
+            // Точка Б (встреча): 22% (прямо перед Азатом, который стоит на 10%)
+            const startLeftPercent = 80;
+            const endLeftPercent = 22;
+
             const passed = now - startTime;
             let ratio = passed / totalDuration;
             if (ratio < 0) ratio = 0;
             if (ratio > 1) ratio = 1;
 
-            const currentPos = 4 + (ratio * 39); // Диапазон от 4% до 43%
-            azat.style.left = `${currentPos}%`;
-            fariza.style.right = `${currentPos}%`;
+            // Вычисляем текущую координату left для Фаризы
+            const currentLeft = startLeftPercent - (ratio * (startLeftPercent - endLeftPercent));
+            fariza.style.left = `${currentLeft}%`;
         }
 
-        // Запуск
+        // Запуск основного цикла
         updateFrame();
         const loop = setInterval(updateFrame, 1000);
 
