@@ -3,18 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Азат & Фариза: Путь в Стамбул 🇹🇷✈️</title>
+    <title>Азат & Фариза: Стамбул 🇹🇷</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --sky-gradient: linear-gradient(to bottom, #7ddcfd 0%, #a2e8ff 100%);
-            --grass-color: #52b73a;
-            --road-color: #9c6b30;
-            --road-border: #6b471c;
-            --text-color: #ffffff;
-            --ui-bg: rgba(0, 0, 0, 0.6);
-            --border-color: #fff;
+            --sky: linear-gradient(to bottom, #7ddcfd 0%, #b2e9ff 70%, #52b73a 70%, #52b73a 75%, #9c6b30 75%);
+            --ui-bg: #2c3e50;
         }
 
         * {
@@ -24,462 +19,362 @@
         }
 
         body {
-            font-family: 'Press Start 2P', 'Courier New', monospace;
-            background: linear-gradient(to bottom, #ffeef2, #ffebf2);
+            font-family: 'Press Start 2P', monospace;
+            background-color: #ffeef2;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 15px;
             overflow: hidden;
-            padding: 10px;
-            /* Пикселизация всего */
-            image-rendering: pixelated; 
+            image-rendering: pixelated;
         }
 
-        .container {
+        .game-container {
             width: 100%;
-            max-width: 700px;
-            text-align: center;
+            max-width: 600px;
             position: relative;
         }
 
-        /* UI панель таймера */
-        .status-box {
-            background-color: var(--ui-bg);
-            border: 4px solid var(--border-color);
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        /* Панель таймера сверху */
+        .timer-panel {
+            background-color: #fff;
+            border: 4px solid var(--ui-bg);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
         }
 
-        h1 {
-            color: var(--text-color);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            text-shadow: 2px 2px 0px #000;
+        .timer-panel h1 {
+            font-size: 0.65rem;
+            color: var(--ui-bg);
+            line-height: 1.4;
+            margin-bottom: 8px;
         }
 
         .countdown {
-            color: #ff6a6a;
-            font-size: 1.1rem;
-            margin-top: 5px;
-            text-shadow: 1px 1px 0px #000;
+            font-size: 0.85rem;
+            color: #e74c3c;
         }
 
-        /* Игровая сцена */
-        .scene {
+        /* Игровой экран */
+        .screen {
             width: 100%;
-            height: 300px;
-            background: var(--sky-gradient);
-            border: 4px solid var(--border-color);
-            border-radius: 12px;
+            height: 280px;
+            background: var(--sky);
+            border: 4px solid var(--ui-bg);
+            border-radius: 16px;
             position: relative;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
             overflow: hidden;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Небо: Солнце и облака */
-        .sun {
+        /* Пиксельное Солнце */
+        .pixel-sun {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 32px;
-            height: 32px;
+            top: 15px;
+            left: 15px;
+            width: 30px;
+            height: 30px;
             background: #f1c40f;
-            border-radius: 4px;
-            animation: sunPulse 3s linear infinite alternate;
+            box-shadow: 0 0 0 4px #f39c12;
         }
-        .sun-ray {
-            position: absolute;
-            width: 10px; height: 4px; background: #f1c40f; border-radius: 2px;
-        }
-        .sun-ray.v1 { top: -6px; left: 11px; transform: rotate(90deg); }
-        .sun-ray.v2 { bottom: -6px; left: 11px; transform: rotate(90deg); }
-        .sun-ray.h1 { top: 14px; left: -6px; }
-        .sun-ray.h2 { top: 14px; right: -6px; }
-        .sun-ray.d1 { top: 0px; left: -2px; transform: rotate(45deg); }
-        .sun-ray.d2 { top: 0px; right: -2px; transform: rotate(-45deg); }
-        .sun-ray.d3 { bottom: 0px; left: -2px; transform: rotate(-45deg); }
-        .sun-ray.d4 { bottom: 0px; right: -2px; transform: rotate(45deg); }
 
-        .cloud {
+        /* Пиксельные Облака */
+        .pixel-cloud {
             position: absolute;
             background: #fff;
-            border-radius: 4px;
-            opacity: 0.8;
-            animation: floatCloud 20s linear infinite alternate;
+            height: 12px;
+            border-radius: 2px;
+            opacity: 0.85;
         }
-        .cloud-1 { width: 50px; height: 15px; top: 40px; }
-        .cloud-2 { width: 80px; height: 20px; top: 70px; left: 30%; animation-duration: 30s; }
-        .cloud-3 { width: 40px; height: 10px; top: 25px; left: 60%; animation-duration: 25s; }
+        .cloud-1 { width: 60px; top: 20px; left: 120px; }
+        .cloud-2 { width: 90px; top: 45px; right: 40px; }
 
-        @keyframes sunPulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-        @keyframes floatCloud { 0% { transform: translateX(0); } 100% { transform: translateX(20px); } }
-
-        /* Стамбул (у Азата) */
-        .istanbul {
+        /* Силуэт Стамбула на фоне Азата */
+        .istanbul-bg {
             position: absolute;
-            bottom: 60px;
+            bottom: 70px;
             left: 10px;
-            width: 180px;
-            height: 80px;
-            opacity: 0.4;
+            width: 140px;
+            height: 50px;
+            opacity: 0.25;
             pointer-events: none;
         }
 
-        /* Знак ¡STANBUL */
-        .istanbul-sign {
-            background-color: #fff;
-            border: 4px solid var(--border-color);
-            padding: 8px 12px;
+        /* Табличка Истанбул */
+        .city-sign {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            left: 15px;
+            bottom: 80px;
+            background: #fff;
+            border: 3px solid var(--ui-bg);
+            padding: 4px 6px;
+            font-size: 0.45rem;
+            color: #000;
+            border-radius: 4px;
             text-align: center;
-            border-radius: 8px;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-        }
-        .istanbul-sign h2 { font-size: 0.6rem; color: #000; margin-bottom: 2px; }
-        .istanbul-sign .flag { font-size: 0.8rem; }
-
-        /* Дорога */
-        .road {
-            width: 100%;
-            height: 60px;
-            background-color: var(--road-color);
-            border-top: 4px dashed var(--road-border);
-            border-bottom: 4px dashed var(--road-border);
-            position: absolute;
-            bottom: 0px;
         }
 
-        /* Трава */
-        .grass {
-            width: 100%;
-            height: 10px;
-            background-color: var(--grass-color);
+        /* Контейнеры котиков */
+        .cat-container {
             position: absolute;
-            bottom: 60px;
-        }
-
-        /* Котики (Обертка) */
-        .cat-wrapper {
-            position: absolute;
-            bottom: 25px;
+            bottom: 12px; /* Четко на дороге */
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 10;
-        }
-
-        /* АЗАТ (Серый, стоит в Стамбуле) */
-        #azat-wrapper {
-            left: 0%;
-        }
-
-        /* ФАРИЗА (Белая, летит к нему) */
-        #fariza-wrapper {
-            right: 0%;
+            transition: bottom 0.1s ease;
         }
 
         .name-tag {
-            font-size: 0.6rem;
+            font-size: 0.5rem;
             color: #fff;
             background-color: var(--ui-bg);
-            padding: 5px 8px;
+            padding: 4px 6px;
             border-radius: 4px;
-            margin-bottom: 8px;
-            box-shadow: 1px 1px 0px #000;
+            margin-bottom: 6px;
+            white-space: nowrap;
         }
 
-        /* Котики СВГ */
-        .cat-svg {
-            width: 60px;
-            height: 60px;
-            display: block;
+        /* Оригинальные котики СВГ */
+        .cat-sprite {
+            width: 55px;
+            height: 55px;
         }
 
-        /* Азат стоит */
-        .grey-cat { fill: #8e8e93; }
-        .white-cat { fill: #ffffff; }
-        .eye { fill: #000000; }
-        .eye-shine { fill: #fff; }
-        .nose { fill: #ffb8b8; }
-
-        /* Фариза: поза "полета/парения", зеркалирование */
-        #fariza-wrapper .cat-svg {
+        /* Разворот Фаризы влево */
+        #fariza-wrapper .cat-sprite {
             transform: scaleX(-1);
-            animation: farizaFloat 0.6s ease-in-out infinite alternate;
-        }
-        @keyframes farizaFloat {
-            0% { transform: scaleX(-1) translateY(0); }
-            100% { transform: scaleX(-1) translateY(-4px); }
         }
 
-        /* Увеличенный Чемодан */
-        .suitcase {
-            width: 20px;
-            height: 20px;
+        /* Большой розовый чемодан */
+        .big-suitcase {
+            width: 24px;
+            height: 24px;
             position: absolute;
-            bottom: -5px;
-            right: -25px;
+            bottom: 0;
+            right: -18px;
         }
 
-        /* Сердечки шлейфа */
-        .heart-trail {
+        /* Анимация покачивания при движении */
+        .bounce-animation {
+            animation: moveBounce 0.6s steps(2) infinite;
+        }
+        @keyframes moveBounce {
+            50% { transform: translateY(-3px); }
+        }
+
+        /* СТИКЕРНЫЕ СЕРДЕЧКИ (При тапе) */
+        .tap-heart {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            animation: floatUp 1.2s ease-out forwards;
+            width: 16px;
+            height: 16px;
+            animation: popHeart 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             pointer-events: none;
-            z-index: 5;
+            z-index: 99;
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(0.6); } }
 
-        /* Интерактивные сердечки (при клике) */
-        .interactive-heart {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            animation: heartMeet 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            pointer-events: none;
-            z-index: 20;
+        @keyframes popHeart {
+            0% { transform: scale(0) translateY(0); opacity: 0; }
+            30% { transform: scale(1.3) translateY(-10px); opacity: 1; }
+            100% { transform: scale(0.9) translateY(-35px); opacity: 0; }
         }
-        @keyframes heartMeet { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2) translateY(-10px); opacity: 1; } 100% { transform: scale(0.8) translateY(-15px) translateX(var(--meet-x)); opacity: 0; } }
 
-        /* Результат */
-        #celebration {
-            margin-top: 20px;
-            background-color: var(--ui-bg);
-            border: 4px solid var(--border-color);
-            padding: 15px;
-            font-size: 1.2rem;
-            color: #ffb8b8;
+        /* Салют при встрече */
+        .victory-box {
             display: none;
-            animation: popIn 0.5s ease-out forwards;
-            text-shadow: 2px 2px 0px #000;
+            background-color: #fff;
+            border: 4px solid #ff4757;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
         }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .victory-box h2 { font-size: 0.9rem; color: #ff4757; margin-bottom: 10px; }
+        .victory-box p { font-size: 0.6rem; color: var(--ui-bg); line-height: 1.5; }
 
-        /* Адаптивность для мобильных */
-        @media (max-width: 500px) {
-            h1 { font-size: 0.65rem; }
-            .countdown { font-size: 0.8rem; }
-            .scene { height: 260px; }
-            .cat-svg { width: 50px; height: 50px; }
-            .road { height: 50px; }
-            .grass { bottom: 50px; }
-            .cat-wrapper { bottom: 20px; }
-            .istanbul-sign h2 { font-size: 0.5rem; }
-            .istanbul { width: 130px; height: 60px; left: 5px; }
+        /* Мобильная адаптация размеров */
+        @media (max-width: 450px) {
+            .timer-panel h1 { font-size: 0.55rem; }
+            .countdown { font-size: 0.75rem; }
+            .screen { height: 240px; }
+            .cat-sprite { width: 48px; height: 48px; }
+            .big-suitcase { width: 20px; height: 20px; right: -14px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="status-box" id="timer-box">
-            <h1>АЗАТ ОЖИДАЕТ В ТУРЦИИ...<br>ФАРИЗА ЛЕТИТ К НЕМУ! 🇹🇷❤️</h1>
-            <div class="countdown" id="countdown-text">00д : 16ч : 48м : 54с</div>
+    <div class="game-container">
+        <div class="timer-panel" id="timer-screen">
+            <h1>АЗАТ ОЖИДАЕТ В ТУРЦИИ, ФАРИЗА ЛЕТИТ К НЕМУ... 🇹🇷✈️</h1>
+            <div class="countdown" id="timer-text">00д : 00ч : 00м : 00с</div>
         </div>
-        
-        <div class="scene" id="game-scene">
-            <div class="sun">
-                <div class="sun-ray v1"></div><div class="sun-ray v2"></div>
-                <div class="sun-ray h1"></div><div class="sun-ray h2"></div>
-                <div class="sun-ray d1"></div><div class="sun-ray d2"></div>
-                <div class="sun-ray d3"></div><div class="sun-ray d4"></div>
-            </div>
-            <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div>
 
-            <svg class="istanbul" viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="20" width="20" height="60" fill="#a0a0a0"/>
-                <rect x="8" y="15" width="24" height="5" fill="#a0a0a0"/>
-                <polygon points="10,15 20,0 30,15" fill="#707070"/>
-                <circle cx="90" cy="50" r="30" fill="#a0a0a0"/>
-                <rect x="60" y="50" width="60" height="30" fill="#a0a0a0"/>
-                <rect x="55" y="0" width="4" height="80" fill="#a0a0a0"/>
-                <rect x="121" y="0" width="4" height="80" fill="#a0a0a0"/>
+        <div class="screen" id="click-zone">
+            <div class="pixel-sun"></div>
+            <div class="pixel-cloud cloud-1"></div>
+            <div class="pixel-cloud cloud-2"></div>
+
+            <svg class="istanbul-bg" viewBox="0 0 100 50" fill="#34495e" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="20" width="30" height="30"/>
+                <circle cx="25" cy="20" r="15"/>
+                <rect x="5" y="0" width="3" height="50"/>
+                <rect x="42" y="0" width="3" height="50"/>
             </svg>
 
-            <div class="istanbul-sign">
-                <h2>¡STANBUL</h2>
-                <div class="flag">🇹🇷</div>
-            </div>
+            <div class="city-sign">İSTANBUL</div>
 
-            <div class="grass"></div>
-            <div class="road"></div>
-
-            <div id="azat-wrapper" class="cat-wrapper">
-                <div class="name-tag">Азат🇹🇷</div>
-                <svg class="cat-svg" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="0" width="3" height="3" class="grey-cat"/>
-                    <rect x="10" y="0" width="3" height="3" class="grey-cat"/>
-                    <rect x="4" y="1" width="1" height="1" class="nose"/>
-                    <rect x="11" y="1" width="1" height="1" class="nose"/>
-                    <rect x="2" y="3" width="12" height="10" class="grey-cat"/>
-                    <rect x="4" y="5" width="3" height="4" class="eye"/>
-                    <rect x="5" y="5" width="1" height="1" class="eye-shine"/>
-                    <rect x="9" y="5" width="3" height="4" class="eye"/>
-                    <rect x="10" y="5" width="1" height="1" class="eye-shine"/>
-                    <rect x="7" y="9" width="2" height="1" class="nose"/>
-                    <rect x="4" y="13" width="3" height="3" class="grey-cat"/>
-                    <rect x="9" y="13" width="3" height="3" class="grey-cat"/>
-                    <rect x="0" y="8" width="2" height="4" class="grey-cat"/>
+            <div id="azat-wrapper" class="cat-container bounce-animation">
+                <div class="name-tag">Азат 🇹🇷</div>
+                <svg class="cat-sprite" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 16h4v2H2zM4 12h2v4H4zm2-4h2v4H6z" fill="#7f8c8d"/>
+                    <rect x="8" y="14" width="14" height="12" fill="#95a5a6"/>
+                    <rect x="10" y="16" width="10" height="10" fill="#7f8c8d"/>
+                    <rect x="10" y="26" width="3" height="3" fill="#636e72"/>
+                    <rect x="17" y="26" width="3" height="3" fill="#636e72"/>
+                    <rect x="16" y="6" width="12" height="11" fill="#95a5a6"/>
+                    <rect x="17" y="7" width="10" height="9" fill="#7f8c8d"/>
+                    <rect x="17" y="3" width="3" height="3" fill="#7f8c8d"/>
+                    <rect x="24" y="3" width="3" height="3" fill="#7f8c8d"/>
+                    <rect x="23" y="8" width="3" height="4" fill="#2d3436"/>
+                    <rect x="23" y="8" width="1" height="2" fill="#ffffff"/>
+                    <rect x="27" y="11" width="2" height="1" fill="#ff7675"/>
+                    <rect x="21" y="11" width="2" height="2" fill="#fab1a0" opacity="0.8"/>
                 </svg>
             </div>
 
-            <div id="fariza-wrapper" class="cat-wrapper">
-                <div class="name-tag">Фариза✈️</div>
+            <div id="fariza-wrapper" class="cat-container bounce-animation">
+                <div class="name-tag">Фариза ✈️</div>
                 <div style="position: relative;">
-                    <svg class="cat-svg" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="0" width="3" height="3" class="white-cat"/>
-                        <rect x="10" y="0" width="3" height="3" class="white-cat"/>
-                        <rect x="4" y="1" width="1" height="1" class="nose"/>
-                        <rect x="11" y="1" width="1" height="1" class="nose"/>
-                        <rect x="2" y="3" width="12" height="10" class="white-cat"/>
-                        <rect x="4" y="5" width="3" height="4" class="eye"/>
-                        <rect x="5" y="5" width="1" height="1" class="eye-shine"/>
-                        <rect x="9" y="5" width="3" height="4" class="eye"/>
-                        <rect x="10" y="5" width="1" height="1" class="eye-shine"/>
-                        <rect x="7" y="9" width="2" height="1" class="nose"/>
-                        <rect x="4" y="13" width="3" height="3" class="white-cat"/>
-                        <rect x="9" y="13" width="3" height="3" class="white-cat"/>
-                        <rect x="0" y="8" width="2" height="4" class="white-cat"/>
+                    <svg class="cat-sprite" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 16h4v2H2zM4 12h2v4H4zm2-4h2v4H6z" fill="#dcdde1"/>
+                        <rect x="8" y="14" width="14" height="12" fill="#ffffff"/>
+                        <rect x="10" y="16" width="10" height="10" fill="#f5f6fa"/>
+                        <rect x="10" y="26" width="3" height="3" fill="#b2bec3"/>
+                        <rect x="17" y="26" width="3" height="3" fill="#b2bec3"/>
+                        <rect x="16" y="6" width="12" height="11" fill="#ffffff"/>
+                        <rect x="17" y="7" width="10" height="9" fill="#f5f6fa"/>
+                        <rect x="17" y="3" width="3" height="3" fill="#ffffff"/>
+                        <rect x="24" y="3" width="3" height="3" fill="#ffffff"/>
+                        <rect x="18" y="5" width="1" height="1" fill="#ff7675"/>
+                        <rect x="23" y="8" width="3" height="4" fill="#222f3e"/>
+                        <rect x="23" y="8" width="1" height="2" fill="#ffffff"/>
+                        <rect x="27" y="11" width="2" height="1" fill="#ff7675"/>
+                        <rect x="21" y="11" width="2" height="2" fill="#ffb8b8"/>
                     </svg>
-                    <svg class="suitcase" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    
+                    <svg class="big-suitcase" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                         <rect x="2" y="4" width="12" height="11" fill="#ff7675" rx="1"/>
                         <rect x="3" y="5" width="10" height="9" fill="#ff4757" rx="1"/>
-                        <rect x="5" y="0" width="6" height="4" fill="#333"/>
-                        <rect x="6" y="1" width="4" height="2" fill="#fff"/>
-                        <rect x="4" y="15" width="2" height="1" fill="#333"/>
-                        <rect x="10" y="15" width="2" height="1" fill="#333"/>
+                        <rect x="5" y="0" width="6" height="4" fill="#2c3e50"/>
+                        <rect x="6" y="1" width="4" height="3" fill="#fff"/>
+                        <circle cx="5" cy="15" r="1" fill="#000"/>
+                        <circle cx="11" cy="15" r="1" fill="#000"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div id="celebration">
-            УРАААА! <br><br>
-            АЗАТ И ФАРИЗА ВСТРЕТИЛИСЬ!<br>💖💖💖
+        <div class="victory-box" id="victory-screen">
+            <h2>💖 УРА! ОНИ ВСТРЕТИЛИСЬ! 💖</h2>
+            <p>Азат и Фариза наконец-то вместе в Стамбуле!<br>Добро пожаловать в Турцию! 🇹🇷🐾✨</p>
         </div>
     </div>
 
-    <template id="pixel-heart-template">
-        <svg viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg">
+    <template id="heart-element">
+        <svg class="tap-heart" viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 1h2v2H3V1zm4 0h2v2H7V1zM1 3h9v4H1V3zm2 4h7v2H3V7zm2 2h4v2H5V9zm2 2h2v1H7v-1z" fill="#ff4757"/>
         </svg>
     </template>
 
     <script>
-        // Конечная дата: 3 июня 2026, 09:50 (Часовой пояс UTC+3)
-        const targetDate = new Date("2026-06-03T09:50:00+03:00");
-        
-        // Начало отсчета (для сближения) — за 2 дня до встречи (зашито)
-        const startDate = new Date("2026-06-01T00:00:00+03:00");
-        const totalTimeline = targetDate - startDate;
+        // Конечная точка времени: 3 июня 2026, 09:50 UTC+3
+        const targetTime = new Date("2026-06-03T09:50:00+03:00");
+        // Начало отсчета для трека движения (зафиксировано на 1 июня)
+        const startTime = new Date("2026-06-01T00:00:00+03:00");
+        const totalDuration = targetTime - startTime;
 
         const azat = document.getElementById('azat-wrapper');
         const fariza = document.getElementById('fariza-wrapper');
-        const countdownText = document.getElementById('countdown-text');
-        const timerBox = document.getElementById('timer-box');
-        const celebration = document.getElementById('celebration');
-        const scene = document.getElementById('game-scene');
-        const heartTemplate = document.getElementById('pixel-heart-template');
+        const timerText = document.getElementById('timer-text');
+        const timerScreen = document.getElementById('timer-screen');
+        const victoryScreen = document.getElementById('victory-screen');
+        const clickZone = document.getElementById('click-zone');
+        const heartTemplate = document.getElementById('heart-element');
 
-        // Спавн пиксельных сердечек шлейфа
-        function leaveHeartTrail(catElement, isReverse = false) {
-            const rect = catElement.getBoundingClientRect();
-            const sceneRect = scene.getBoundingClientRect();
+        function createPopHeart(catNode) {
+            const rect = catNode.getBoundingClientRect();
+            const zoneRect = clickZone.getBoundingClientRect();
             
             const heart = heartTemplate.content.cloneNode(true).querySelector('svg');
-            heart.className = 'heart-trail';
             
-            const offsetX = isReverse ? rect.width - 15 : 0;
-            const x = rect.left - sceneRect.left + offsetX;
-            const y = rect.top - sceneRect.top + (rect.height / 2) + 10;
+            // Центрируем вылет строго над головой котика
+            const x = (rect.left - zoneRect.left) + (rect.width / 2) - 8;
+            const y = (rect.top - zoneRect.top) - 10;
             
             heart.style.left = `${x}px`;
             heart.style.top = `${y}px`;
             
-            scene.appendChild(heart);
-            setTimeout(() => heart.remove(), 1200);
+            clickZone.appendChild(heart);
+            setTimeout(() => heart.remove(), 500);
         }
 
-        // Спавн интерактивного сердечка (при клике)
-        function spawnInteractiveHeart(startX, meetX) {
-            const heart = heartTemplate.content.cloneNode(true).querySelector('svg');
-            heart.className = 'interactive-heart';
-            heart.style.left = startX;
-            heart.style.setProperty('--meet-x', meetX); // CSS переменная для направления
-            
-            scene.appendChild(heart);
-            setTimeout(() => heart.remove(), 400); // Быстро исчезают
-        }
-
-        function updateGame() {
+        function updateFrame() {
             const now = new Date();
-            const timeRemaining = targetDate - now;
+            const diff = targetTime - now;
 
-            if (timeRemaining <= 0) {
-                // Встреча!
-                azat.style.left = 'calc(50% - 40px)';
-                fariza.style.right = 'calc(50% - 40px)';
+            if (diff <= 0) {
+                // Момент встречи! Ставим их строго по центру рядышком
+                azat.style.left = 'calc(50% - 52px)';
+                fariza.style.right = 'calc(50% - 52px)';
                 
-                timerBox.style.display = 'none';
-                celebration.style.display = 'block';
+                azat.classList.remove('bounce-animation');
+                fariza.classList.remove('bounce-animation');
                 
-                clearInterval(gameInterval);
-                clearInterval(trailInterval);
+                timerScreen.style.display = 'none';
+                victoryScreen.style.display = 'block';
+                
+                clearInterval(loop);
                 return;
             }
 
-            // Таймер обратного отсчета
-            const seconds = Math.floor((timeRemaining / 1000) % 60);
-            const minutes = Math.floor((timeRemaining / 1000 / 60) % 60);
-            const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            // Рендер таймера
+            const s = Math.floor((diff / 1000) % 60);
+            const m = Math.floor((diff / 1000 / 60) % 60);
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-            const pad = (num) => String(num).padStart(2, '0');
-            countdownText.innerText = `${pad(days)}д : ${pad(hours)}ч : ${pad(minutes)}м : ${pad(seconds)}с`;
+            const format = (n) => String(n).padStart(2, '0');
+            timerText.innerText = `${format(d)}д : ${format(h)}ч : ${format(m)}м : ${format(s)}с`;
 
-            // Позиционирование котиков на основе прогресса (%)
-            const currentPassed = now - startDate;
-            let progress = (currentPassed / totalTimeline) * 50; 
-            
-            if (progress < 0) progress = 0;
-            if (progress > 43) progress = 43; 
+            // Математика сближения: котики идут от краёв (4%) к центру (максимум по 43% с каждой стороны)
+            const passed = now - startTime;
+            let ratio = passed / totalDuration;
+            if (ratio < 0) ratio = 0;
+            if (ratio > 1) ratio = 1;
 
-            azat.style.left = `${progress}%`;
-            fariza.style.right = `${progress}%`;
+            const currentPos = 4 + (ratio * 39); // Диапазон от 4% до 43%
+            azat.style.left = `${currentPos}%`;
+            fariza.style.right = `${currentPos}%`;
         }
 
-        // Инициализация циклов
-        updateGame();
-        const gameInterval = setInterval(updateGame, 1000);
+        // Запуск
+        updateFrame();
+        const loop = setInterval(updateFrame, 1000);
 
-        // Хвосты сердечек (каждые 800мс)
-        const trailInterval = setInterval(() => {
+        // Клик/Тап анимация стикеров
+        clickZone.addEventListener('click', () => {
             const now = new Date();
-            if (targetDate - now > 0) {
-                leaveHeartTrail(azat, false);
-                leaveHeartTrail(fariza, true); // Хвост сзади чемодана
-            }
-        }, 800);
-
-        // Интерактивность при клике (тапе) по сцене
-        scene.addEventListener('click', (e) => {
-            const now = new Date();
-            if (targetDate - now > 0) {
-                // Спавн двух сердечек, летящих навстречу
-                spawnInteractiveHeart(azat.style.left, '100px'); // От Азата вправо
-                spawnInteractiveHeart(fariza.style.right, '-100px'); // От Фаризы влево
+            if (targetTime - now > 0) {
+                createPopHeart(azat);
+                createPopHeart(fariza);
             }
         });
     </script>
